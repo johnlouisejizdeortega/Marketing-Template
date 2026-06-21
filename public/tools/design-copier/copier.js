@@ -184,14 +184,14 @@
       '.band{background:'+tokens.brandDark+';color:#fff;text-align:center;padding:24px 20px;border-radius:0}'+
       '.band h2{font-size:20px;margin-bottom:6px}.band p{color:#cfe0f3;font-size:13px}'+
       '</style></head><body>'+
-      '<div class="h"><div class="nav"><b>BoilerCo<span>UK</span></b><span style="font-size:12px;color:'+tokens.brandDark+';font-weight:800">☎ 0800 000 0000</span></div>'+
+      '<div class="h"><div class="nav"><b>BoilerCo<span>UK</span></b><span style="font-size:12px;color:'+tokens.brandDark+';font-weight:800"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1z"/></svg> 0800 000 0000</span></div>'+
         '<div style="margin-top:16px"><span class="pill">★ Rated 4.9/5 by homeowners</span>'+
         '<h1>A warm home by tomorrow, from a price you can trust</h1>'+
         '<p class="sub">Gas Safe engineers. Fixed-price quotes, next-day fitting & up to 12-year warranties.</p>'+
-        '<a class="btn p" href="#">Get my fixed price →</a><a class="btn g" href="#">☎ Call us</a></div></div>'+
+        '<a class="btn p" href="#">Get my fixed price →</a><a class="btn g" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1z"/></svg> Call us</a></div></div>'+
       '<div class="sec alt"><div class="cards">'+
-        '<div class="card"><div class="ic">\u{1F525}</div><h3>New boilers</h3><p>A-rated, fitted next day with up to 12-yr warranty.</p></div>'+
-        '<div class="card"><div class="ic">\u{1F6E0}</div><h3>Repairs</h3><p>Same-day callouts, fixed upfront pricing.</p></div>'+
+        '<div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 2c2 5-3 6-3 11a3 3 0 0 0 6 0c3 3 4 6 4 9a7 7 0 1 1-14 0c0-7 7-9 7-20z"/></svg></div><h3>New boilers</h3><p>A-rated, fitted next day with up to 12-yr warranty.</p></div>'+
+        '<div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m22 7-5 5-3-3 5-5a6 6 0 0 0-8 8l-9 9 2 2 9-9a6 6 0 0 0 8-8z"/></svg></div><h3>Repairs</h3><p>Same-day callouts, fixed upfront pricing.</p></div>'+
       '</div></div>'+
       '<div class="sec" style="display:flex;justify-content:center"><div class="price"><div style="font-weight:800;color:'+tokens.ink+'">Most popular</div><div class="amt">£2,295</div><div style="font-size:12px;color:'+tokens.body+'">fitted • 0% finance</div><a class="btn p" style="display:block;margin:12px 0 0" href="#">Choose plan</a></div></div>'+
       '<div class="band"><h2>Don’t get left in the cold</h2><p>Get your no-obligation fixed quote in 60 seconds.</p><a class="btn p" style="margin-top:14px" href="#">Get my free quote →</a></div>'+
@@ -243,7 +243,7 @@
   $('#sampleBtn').addEventListener('click', function(){
     srcEl.value = SAMPLE; extract();
   });
-  $('#copyCss').addEventListener('click', function(){ navigator.clipboard && navigator.clipboard.writeText(cssText()); this.textContent='✓ Copied'; var b=this; setTimeout(function(){b.textContent='\u{1F4CB} Copy CSS';},1200); });
+  $('#copyCss').addEventListener('click', function(){ navigator.clipboard && navigator.clipboard.writeText(cssText()); var b=this, html=b.innerHTML; b.textContent='Copied'; setTimeout(function(){b.innerHTML=html;},1200); });
   $('#downloadCss').addEventListener('click', function(){
     var blob=new Blob([cssText()+'\n'],{type:'text/css'}); var a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='theme.css'; a.click(); URL.revokeObjectURL(a.href);

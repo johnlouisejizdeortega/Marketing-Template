@@ -79,9 +79,39 @@ php -S localhost:8000 -t public      # or: python3 -m http.server -d public 8080
 ## Conversion design
 
 Every section is placed to drive one action — **a fixed-price quote request**.
-The full rationale (social proof, anchoring, risk reversal, urgency, the multi-step
-form, the sticky mobile call bar, colour psychology, etc.) is documented in
+The full rationale (social proof, anchoring, risk reversal, urgency, the quote
+modal, the sticky mobile call bar, colour psychology, etc.) is documented in
 [`docs/CONVERSION-PSYCHOLOGY.md`](docs/CONVERSION-PSYCHOLOGY.md).
+
+## Quote form (GoHighLevel)
+
+The hero CTA and every "Get a quote / Free quote / Choose plan" button open an
+accessible modal (`<dialog id="quoteModal">`) that contains your **GoHighLevel
+(HighLevel) form**. The form is **lazy-loaded on first open**, so the third-party
+iframe never slows the initial page load or hurts your PageSpeed score.
+
+**To go live:**
+1. In HighLevel: **Sites → Forms → (your form) → Integrate → Embed** and copy the
+   iframe `src` (it ends in your form ID).
+2. Open `public/js/main.js` and set:
+   ```js
+   var GHL_FORM_URL = 'https://api.leadconnectorhq.com/widget/form/YOUR_FORM_ID';
+   ```
+   Also update the `<noscript>` fallback link in `public/index.html` to the same URL.
+3. (Optional) Prefer to paste HighLevel's full embed snippet? Drop it straight into
+   `<div id="ghlMount">` in `public/index.html` and delete the iframe-injection block
+   in `main.js`.
+
+HighLevel's `form_embed.js` auto-resizes the iframe to the form's height. Submissions,
+confirmation messages and redirects are configured inside HighLevel — you can point its
+post-submit redirect at `/thank-you` if you want to reuse the included thank-you page.
+
+### Links to your other system features
+The nav, mobile menu and footer include **placeholder links** to other parts of your
+stack — **Customer login**, **Book a call** and **Live chat / help** — using
+`https://your-domain.example.com/...` URLs. Search for `your-domain.example.com` and
+replace them with your real portal / calendar / chat URLs (each is also flagged with a
+`<!-- TODO -->` comment in `public/index.html`).
 
 ## The Design Copier tool
 
@@ -115,8 +145,10 @@ Because the template is driven entirely by CSS custom properties
 - [ ] Replace `BoilerCo UK`, phone `0800 000 0000`, and email everywhere.
 - [ ] Swap brand colours via the Design Copier or `:root` in `public/css/styles.css`.
 - [ ] Update services, pricing tiers and FAQ copy.
-- [ ] Wire the lead form to a real handler (replace the `action="thank-you.html"`
-      with your CRM/Formspree/Netlify Forms endpoint) and add analytics events.
+- [ ] Connect your **GoHighLevel form** — set `GHL_FORM_URL` in `public/js/main.js`
+      (see "Quote form" below). Add analytics events on modal open if you like.
+- [ ] Replace the **placeholder feature URLs** (`https://your-domain.example.com/...`
+      for login / book-a-call / live chat) in the nav, mobile menu and footer.
 - [ ] Replace placeholder testimonials & stats with real, verifiable ones.
 - [ ] Set real `canonical`, Open Graph image, and `sitemap.xml` URLs.
 - [ ] Add a privacy policy & finance/regulatory disclaimers for the UK market.
