@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Copier · BoilerCo Template Studio</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --brand:#0b5cab;--accent:#ff7a18;--ink:#0e1726;--body:#41506b;--bg:#fff;--bg-alt:#f5f8fc;--line:#e3e8f0;
+    --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}*{margin:0}
+  body{font-family:var(--font);background:#0b1424;color:#cdd8ea;line-height:1.55}
+  .wrap{max-width:1320px;margin:0 auto;padding:1.25rem}
+  header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;padding-block:1rem}
+  .logo{display:flex;align-items:center;gap:.5rem;font-weight:800;color:#fff;font-size:1.15rem}
+  .logo svg{width:26px;height:26px}
+  .tag{font-size:.8rem;color:#8aa0c2;background:#13203a;border:1px solid #1d2f4f;padding:.3rem .7rem;border-radius:999px}
+  h1{font-size:1.5rem;color:#fff;letter-spacing:-.02em}
+  .sub{color:#8aa0c2;margin-top:.35rem;max-width:70ch}
+  .grid{display:grid;gap:1.25rem;grid-template-columns:1fr;margin-top:1.5rem}
+  @media(min-width:1000px){.grid{grid-template-columns:minmax(0,440px) 1fr}}
+  .panel{background:#101b30;border:1px solid #1d2f4f;border-radius:14px;padding:1.1rem}
+  .panel h2{font-size:1rem;color:#fff;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+  textarea{width:100%;min-height:260px;resize:vertical;background:#0b1424;color:#cdd8ea;border:1px solid #1d2f4f;border-radius:10px;padding:.8rem;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.75rem}
+  button{font:inherit;font-weight:700;cursor:pointer;border:0;border-radius:999px;padding:.7rem 1.2rem;background:var(--accent);color:#fff;transition:filter .12s,transform .12s}
+  button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  button.ghost{background:transparent;border:1.5px solid #2a3e63;color:#cdd8ea}
+  button.sm{padding:.4rem .8rem;font-size:.82rem}
+  .hint{font-size:.8rem;color:#7e93b6;margin-top:.5rem}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem;margin-top:.4rem}
+  .sw{border:1px solid #1d2f4f;border-radius:10px;overflow:hidden;background:#0b1424}
+  .sw .chip{height:46px}
+  .sw .meta{padding:.45rem .55rem;font-size:.72rem}
+  .sw .meta b{display:block;color:#fff;text-transform:capitalize}
+  .sw .meta code{color:#8aa0c2;font-size:.72rem;cursor:pointer}
+  .tokrow{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid #18253f;font-size:.85rem}
+  .tokrow:last-child{border:0}
+  .tokrow label{color:#8aa0c2}
+  .tokrow input[type=color]{width:34px;height:24px;border:0;background:none;padding:0;cursor:pointer;vertical-align:middle}
+  .tokrow .val{color:#fff;font-family:ui-monospace,monospace;font-size:.78rem}
+  pre{background:#0b1424;border:1px solid #1d2f4f;border-radius:10px;padding:.85rem;overflow:auto;font:12.5px/1.5 ui-monospace,monospace;color:#a9c7e8;max-height:230px}
+  .preview-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}
+  .device{display:flex;gap:.4rem}
+  .frameWrap{background:#0b1424;border:1px solid #1d2f4f;border-radius:14px;padding:.75rem;height:640px;overflow:auto}
+  iframe.preview{width:100%;height:100%;border:0;border-radius:10px;background:#fff;transition:max-width .2s;margin:0 auto;display:block}
+  .badge{font-size:.72rem;color:#8aa0c2}
+  .ok{color:#5fd39a}.warn{color:#ffcf6b}
+  .scanlist{font-size:.8rem;color:#8aa0c2;max-height:120px;overflow:auto;margin-top:.5rem}
+  .scanlist div{display:flex;align-items:center;gap:.5rem;padding:.15rem 0}
+  .scanlist i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid #2a3e63}
+  details summary{cursor:pointer;color:#fff;font-weight:700;margin:.5rem 0}
+  #hiddenStage{position:absolute;width:900px;height:1px;left:-9999px;top:0;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">
+      <svg viewBox="0 0 32 32"><path fill="#ff7a18" d="M16 2c2 5-3 6-3 11a3 3 0 0 0 6 0c3 3 4 6 4 9a7 7 0 1 1-14 0c0-7 7-9 7-20z"/></svg>
+      Template Studio · Design Copier
+    </div>
+    <span class="tag">Paste source → extract design → apply to your boiler template</span>
+  </header>
+
+  <h1>Copy any site's design into your template</h1>
+  <p class="sub">Paste the full page source (Ctrl/Cmd+U → select all → copy) of a website you admire. The tool extracts its colour palette, fonts and feel, then themes the boiler template live. Tweak anything, then copy the ready CSS. <strong>Everything runs in your browser — nothing is uploaded.</strong></p>
+
+  <div class="grid">
+    <!-- LEFT: input + tokens -->
+    <div>
+      <div class="panel">
+        <h2>1 · Paste page source</h2>
+        <textarea id="src" placeholder="Paste a website's HTML source here…&#10;&#10;Tip: open the site, press Ctrl+U (View Source), Ctrl+A, Ctrl+C, then paste here.&#10;Or paste a chunk of its HTML/CSS — even just a <style> block works."></textarea>
+        <div class="row">
+          <button id="extractBtn">⚡ Extract &amp; apply design</button>
+          <button class="ghost" id="sampleBtn">Try a sample</button>
+          <button class="ghost" id="resetBtn">Reset</button>
+        </div>
+        <p class="hint" id="status">Waiting for source…</p>
+        <div class="scanlist" id="scanlist" hidden></div>
+      </div>
+
+      <div class="panel" style="margin-top:1.25rem">
+        <h2>2 · Design tokens <span class="badge">(click a swatch hex to copy)</span></h2>
+        <div class="swatches" id="swatches"></div>
+        <div style="margin-top:.9rem" id="tuner"></div>
+      </div>
+
+      <div class="panel" style="margin-top:1.25rem">
+        <h2>3 · Export themed CSS</h2>
+        <p class="hint">Drop this at the top of <code>css/styles.css</code> (or in a <code>&lt;style&gt;</code> tag) to re-skin the whole template.</p>
+        <pre id="cssOut">:root { /* extract a design to generate */ }</pre>
+        <div class="row">
+          <button id="copyCss">📋 Copy CSS</button>
+          <button class="ghost" id="downloadCss">⬇ Download theme.css</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: live preview -->
+    <div class="panel">
+      <div class="preview-head">
+        <h2 style="margin:0">Live preview · your boiler template</h2>
+        <div class="device">
+          <button class="ghost sm" data-w="100%">🖥 Desktop</button>
+          <button class="ghost sm" data-w="390px">📱 Mobile</button>
+        </div>
+      </div>
+      <div class="frameWrap">
+        <iframe class="preview" id="preview" title="Themed template preview"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- hidden stage renders the pasted source so we can read computed styles -->
+<iframe id="hiddenStage" sandbox="allow-same-origin" aria-hidden="true"></iframe>
+
+<script src="copier.js"></script>
+</body>
+</html>
