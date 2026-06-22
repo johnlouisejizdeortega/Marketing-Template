@@ -20,15 +20,18 @@ source and re-skins the template live.
 │   ├── css/styles.css          #   full stylesheet (mobile-first, system fonts)
 │   ├── js/main.js              #   ~2KB: mobile nav + multi-step lead form
 │   ├── tools/design-copier/    #   paste a site's source → copy its design
+│   ├── css/dashboard.css        #   admin dashboard + login styles
+│   ├── js/dashboard.js          #   PageSpeed/SEO tools (client-side PSI API)
 │   ├── robots.txt, sitemap.xml #   SEO basics
 │   └── index.php               #   Laravel front controller
-├── routes/web.php              # Serves the static pages (/, /thank-you, fallback)
+├── routes/web.php              # Static pages + admin auth/dashboard routes
+├── resources/views/            # Blade: login + dashboard (Generate/PageSpeed/SEO)
 ├── app/ bootstrap/ config/ …   # Standard Laravel 13 skeleton
 ├── docs/
 │   ├── CONVERSION-PSYCHOLOGY.md # Why every section exists (the persuasion plan)
 │   └── DEPLOY-LARAVEL-CLOUD.md  # Step-by-step Laravel Cloud deployment
 ├── composer.json / composer.lock
-└── .env.example                # No-DB defaults (cookie/file/sync drivers)
+└── .env.example                # Defaults (sqlite + DB sessions for the dashboard)
 ```
 
 The marketing site is fully self-contained in `public/` — the Laravel layer exists
@@ -39,9 +42,10 @@ is what preserves the PageSpeed score.
 ## Deploy to Laravel Cloud
 
 See **[docs/DEPLOY-LARAVEL-CLOUD.md](docs/DEPLOY-LARAVEL-CLOUD.md)** for the full
-walkthrough. In short: connect the repo, choose **no database**, set the env vars
-from `.env.example` (generate `APP_KEY`), remove `migrate` from the deploy command,
-and deploy. No Node/Vite build runs (there's no `package.json`).
+walkthrough. In short: connect the repo, set the env vars from `.env.example`
+(generate `APP_KEY`), and deploy. No Node/Vite build runs (there's no
+`package.json`). The public pages need **no database**; the admin dashboard does
+— attach one, keep `migrate` in the deploy command, and seed the admin user.
 
 ## Run it locally
 
@@ -59,6 +63,36 @@ php -S localhost:8000 -t public      # or: python3 -m http.server -d public 8080
 # http://localhost:8000/                      (the website)
 # http://localhost:8000/tools/design-copier/  (the design tool)
 ```
+
+## Admin dashboard
+
+A private, login-gated control panel for the site owner lives at **`/login`** →
+**`/dashboard`**. Auth is real, database-backed Laravel session auth (no Tailwind
+or build step — the login screen reuses the site's own CSS). It has three tools:
+
+- **Generate** — the Design Copier, embedded: paste a page's source to extract
+  its colours/type and get CSS variables for `public/css/styles.css`.
+- **PageSpeed** — runs Google PageSpeed Insights for any URL and shows the four
+  category scores + Core Web Vitals. Calls Google directly from the browser.
+- **SEO** — a Lighthouse-based on-page SEO checklist (pass / warn / fail).
+
+Enable it locally:
+
+```bash
+touch database/database.sqlite   # .env already sets DB_CONNECTION=sqlite
+php artisan migrate              # users + sessions tables
+php artisan db:seed              # creates the admin from ADMIN_* in .env
+```
+
+The admin account comes from `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` in
+`.env` (defaults `admin@example.com` / `password` for local dev). **Change the
+password in production** and after first login — re-run `db:seed` to update it,
+or change it in `php artisan tinker`. To skip the dashboard entirely, set
+`SESSION_DRIVER=cookie` and don't run the migrations.
+
+> The PageSpeed/SEO tools optionally take a free
+> [PSI API key](https://developers.google.com/speed/docs/insights/v5/get-started)
+> (pasted in the UI, stored only in your browser) to avoid Google's rate limits.
 
 ## How the 100-PSI performance is achieved
 

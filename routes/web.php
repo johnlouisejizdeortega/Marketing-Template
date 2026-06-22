@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -28,6 +30,28 @@ $serve = function (string $relative): BinaryFileResponse {
 Route::get('/', fn () => $serve('index.html'))->name('home');
 Route::get('/thank-you', fn () => $serve('thank-you.html'));
 Route::get('/tools/design-copier', fn () => $serve('tools/design-copier/index.html'));
+
+/*
+|--------------------------------------------------------------------------
+| Admin auth + dashboard (defined before the catch-all fallback)
+|--------------------------------------------------------------------------
+| Real, database-backed Laravel session auth gating a private control panel.
+| These routes must be declared above Route::fallback() so they take
+| precedence over the static-file resolver.
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/generate', [DashboardController::class, 'generate'])->name('dashboard.generate');
+    Route::get('/dashboard/psi', [DashboardController::class, 'psi'])->name('dashboard.psi');
+    Route::get('/dashboard/seo', [DashboardController::class, 'seo'])->name('dashboard.seo');
+});
 
 // Catch-all: map /some/path to public/some/path.html or .../index.html.
 // Real asset files (with a dot, e.g. .css/.js) are served directly by the
