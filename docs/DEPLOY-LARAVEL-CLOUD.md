@@ -1,31 +1,31 @@
 # Deploying to Laravel Cloud
 
-This repository is a **Laravel 13 application that serves a static marketing
-site** from `public/`. That gives you Laravel Cloud's managed infrastructure
-(zero-config web server, HTTPS, CDN, deploys from Git) while keeping the front
-end as plain static HTML/CSS/JS for top PageSpeed scores.
+This repository is a **Laravel 13 app** that is a **private admin control panel**
+with a built-in preview of a marketing website. It runs on Laravel Cloud's
+managed infrastructure (zero-config web server, HTTPS, CDN, deploys from Git).
 
-> The public marketing pages are static and need no database. The private
-> **admin dashboard** (`/login` → `/dashboard`) does: it uses real
-> database-backed Laravel auth, so you'll attach a database and run migrations.
-> If you don't need the dashboard, skip section 6 and leave the DB as **None**.
+> **No database is required.** The dashboard logs in with a single shared
+> password (env `DASHBOARD_PASSWORD`) and keeps its session in an encrypted
+> cookie. There are no migrations to run and no DB to attach.
+
+The whole app is private: landing on `/` shows the **login** screen, then the
+**dashboard**. The marketing website is only viewable, gated, via the
+in-dashboard **Preview** (`/dashboard/preview`).
 
 ---
 
-## 1. Push the branch (already done)
+## 1. Push the branch
 
-The app lives on branch **`claude/marketing-site-pagespeed-90uzo1`**.
+The app lives on branch **`claude/marketing-site-pagespeed-90uzo1`** (also merged
+to `main`).
 
 ## 2. Create the project in Laravel Cloud
 
 1. Go to <https://cloud.laravel.com> → **Create application**.
 2. Connect your GitHub account and pick the
    `johnlouisejizdeortega/marketing-template` repository.
-3. Set the deploy branch to `claude/marketing-site-pagespeed-90uzo1`
-   (or merge it into `main` first and deploy `main`).
-4. When asked about a **database**: choose **PostgreSQL** if you want the admin
-   dashboard (recommended). Choose **None** only if you're deploying the public
-   marketing pages alone — then skip section 6.
+3. Set the deploy branch to `main` (or the feature branch).
+4. When asked about a **database**, choose **None** — this app doesn't use one.
 
 ## 3. Environment variables
 
@@ -36,24 +36,20 @@ APP_NAME="BoilerCo UK"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-domain.com
-APP_KEY=               # click "Generate" in the Laravel Cloud UI
+APP_KEY=                 # click "Generate" in the Laravel Cloud UI
 
+SESSION_DRIVER=cookie
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
 LOG_CHANNEL=stack
 
-# Admin dashboard (omit this block if you chose DB "None"):
-SESSION_DRIVER=database     # use "cookie" if you have no database
-DB_CONNECTION=pgsql         # Laravel Cloud injects the DB_* host/credentials
-ADMIN_NAME="Site Admin"
-ADMIN_EMAIL=you@your-domain.com
-ADMIN_PASSWORD=             # a strong password; change it after first login
+# The dashboard password — paste your own here:
+DASHBOARD_PASSWORD=your-strong-password
 ```
 
-`.env.example` already ships these defaults, so most fields are pre-filled.
-**Generate the `APP_KEY`** in the dashboard (or run `php artisan key:generate`
-locally and paste it). Laravel Cloud auto-injects the `DB_*` connection
-variables when a database is attached.
+`.env.example` ships these defaults. **Generate the `APP_KEY`** in the dashboard
+(it encrypts the session cookie, so it's required). `SESSION_DRIVER` already
+defaults to `cookie`, but setting it explicitly is good practice.
 
 ## 4. Build & deploy commands
 
@@ -63,34 +59,36 @@ Laravel Cloud auto-detects a Laravel app. Use these:
   ```
   composer install --no-dev --optimize-autoloader
   ```
-  There is **no `package.json`**, so no Node/Vite build runs — nothing to configure.
+  There is **no `package.json`**, so no Node/Vite build runs.
 
-- **Deploy command** — with the dashboard's database attached:
+- **Deploy command**:
   ```
-  php artisan migrate --force
   php artisan config:cache
   php artisan route:cache
   ```
-  > **No database (marketing pages only)?** Drop the `migrate` line — it will
-  > fail with no DB attached — and set `SESSION_DRIVER=cookie`.
+  > No `migrate` step — there's no database.
 
-The web root is `public/` (Laravel standard) — Laravel Cloud handles this
-automatically.
+The web root is `public/` — Laravel Cloud handles this automatically.
 
 ## 5. Deploy
 
 Click **Deploy**. On success you'll get a `*.laravel.cloud` URL; add your custom
-domain under **Domains** and Laravel Cloud provisions HTTPS automatically.
+domain under **Domains** and Laravel Cloud provisions HTTPS automatically. Visit
+the URL → you'll be sent to `/login`. Enter `DASHBOARD_PASSWORD` to reach the
+dashboard.
 
-## 6. Admin dashboard (optional)
+---
 
-The dashboard is a private control panel for the site owner, reached at
-**`/login`** → **`/dashboard`**. It has three tools:
+## The dashboard
 
-- **Generate** — the Design Copier (paste a page's source, extract its colours
-  & type, get CSS variables for `public/css/styles.css`).
+A private control panel reached at **`/login`** → **`/dashboard`**:
+
+- **Generate** — the Design Copier (paste a page's source, extract its colours &
+  type, get CSS variables for `public/css/styles.css`).
 - **PageSpeed** — runs Google PageSpeed Insights and shows scores + Core Web Vitals.
 - **SEO** — a Lighthouse-based on-page SEO checklist.
+- **Preview site** — a framed, private preview of the marketing website
+  (`public/site.html`) in desktop / tablet / mobile widths.
 
 PageSpeed and SEO call Google's PSI API **directly from the browser**, so the
 server makes no outbound requests and stores no API key. To avoid PSI rate
@@ -98,27 +96,20 @@ limits, create a free [PSI API key](https://developers.google.com/speed/docs/ins
 and paste it into the tool — it's saved in your browser's `localStorage` only.
 Restrict the key by HTTP referrer in the Google Cloud console.
 
-**Seed the admin account** once after the first deploy (Laravel Cloud → command
-runner / SSH), using the `ADMIN_*` env values:
+### Changing the password
 
-```
-php artisan db:seed --class=Database\\Seeders\\AdminUserSeeder --force
-```
-
-The seeder is idempotent (`updateOrCreate` on the email), so re-running it just
-updates the existing admin. **Log in and change the password** immediately.
-
----
+Update `DASHBOARD_PASSWORD` in the Laravel Cloud **Environment** settings and
+redeploy (or clear config cache). It is a single shared password — there is no
+user database.
 
 ## How requests are served
 
 - `public/css/**`, `public/js/**`, `public/tools/**`, `robots.txt`, `sitemap.xml`
-  and every `*.html` are **served directly by the web server** — fast, cacheable,
-  no PHP. This is what keeps the Lighthouse/PageSpeed score high.
-- `routes/web.php` only handles "directory" URLs that have no physical file:
-  `/` → `public/index.html`, `/thank-you`, `/tools/design-copier`, plus a
-  catch-all that maps `/foo` to `public/foo.html`.
-- `/up` is Laravel's built-in health check (useful for Laravel Cloud monitoring).
+  and `*.html` are **served directly by the web server** — fast, cacheable, no PHP.
+- `routes/web.php` gates everything: `/` redirects to `/login` or `/dashboard`;
+  the dashboard pages and the `/site` preview target require the password session;
+  a catch-all maps any remaining `/foo` to `public/foo.html`.
+- `/up` is Laravel's built-in health check.
 
 ## Run locally
 
@@ -127,17 +118,10 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
-# For the admin dashboard, create a local SQLite DB + the admin user:
-touch database/database.sqlite     # .env already sets DB_CONNECTION=sqlite
-php artisan migrate
-php artisan db:seed                 # creates the ADMIN_* account
+# set a password (or edit .env directly):
+#   DASHBOARD_PASSWORD=your-strong-password
 
-php artisan serve         # http://127.0.0.1:8000  (dashboard at /login)
+php artisan serve         # http://127.0.0.1:8000  → redirects to /login
 ```
 
-Or serve the static files alone with any static server (the marketing site is
-self-contained inside `public/`):
-
-```bash
-php -S localhost:8000 -t public
-```
+No database, no migrations — it just runs.

@@ -5,17 +5,17 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * Minimal session authentication for the private admin dashboard.
+ * Password-only authentication for the private admin dashboard.
  *
- * Hand-rolled (no Breeze) so the login screen can reuse the marketing
- * site's own CSS design tokens instead of pulling in Tailwind + a build step.
+ * A single shared password is read from config('dashboard.password')
+ * (env DASHBOARD_PASSWORD). There is no users table and no database — a
+ * session flag ("dashboard_authed") tracks the logged-in state, and the
+ * cookie session driver keeps it stateless.
  */
 class LoginController extends Controller
 {
@@ -25,42 +25,45 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    /** Attempt to authenticate the user. */
+    /** Verify the password and start a session. */
     public function store(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'string', 'email'],
+        $request->validate([
             'password' => ['required', 'string'],
         ]);
 
         $this->ensureIsNotRateLimited($request);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        $expected = (string) config('dashboard.password');
+        $provided = (string) $request->input('password');
+
+        if ($expected === '' || ! hash_equals($expected, $provided)) {
             RateLimiter::hit($this->throttleKey($request));
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'password' => 'Incorrect password.',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey($request));
+
         $request->session()->regenerate();
+        $request->session()->put('dashboard_authed', true);
 
         return redirect()->intended(route('dashboard'));
     }
 
-    /** Log the user out and invalidate the session. */
+    /** Sign out and clear the session. */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
-
+        $request->session()->forget('dashboard_authed');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
     }
 
-    /** Throttle to 5 attempts/minute per email+IP. */
+    /** Throttle to 5 attempts/minute per IP. */
     protected function ensureIsNotRateLimited(Request $request): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
@@ -70,15 +73,12 @@ class LoginController extends Controller
         $seconds = RateLimiter::availableIn($this->throttleKey($request));
 
         throw ValidationException::withMessages([
-            'email' => __('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'password' => "Too many login attempts. Please try again in {$seconds} seconds.",
         ]);
     }
 
     protected function throttleKey(Request $request): string
     {
-        return Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+        return 'login|'.$request->ip();
     }
 }

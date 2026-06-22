@@ -31,9 +31,9 @@
 
     <div class="tool-results" data-results hidden>
       <section class="psi-gauges" data-gauges aria-label="Category scores"></section>
-      <h2 class="psi-h2">Core Web Vitals &amp; lab metrics</h2>
+      <h2 class="dash-h2">Core Web Vitals &amp; lab metrics</h2>
       <section class="psi-metrics" data-metrics></section>
-      <h2 class="psi-h2">Top opportunities</h2>
+      <h2 class="dash-h2">Top opportunities</h2>
       <ul class="psi-opps" data-opps></ul>
     </div>
   </div>

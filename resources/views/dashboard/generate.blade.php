@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Generate')
-@section('heading', 'Generate &amp; theme')
+@section('heading', 'Generate & theme')
 
 @section('content')
   <p class="dash-lead">
@@ -10,8 +10,8 @@
     into <code>public/css/styles.css</code>.
   </p>
 
-  <div class="dash-frame-wrap">
-    <iframe class="dash-frame" src="/tools/design-copier" title="Design Copier" loading="lazy"></iframe>
+  <div class="frame-wrap">
+    <iframe class="frame" src="/tools/design-copier" title="Design Copier" loading="lazy"></iframe>
   </div>
 
   <p class="form-note" style="margin-top:1rem">

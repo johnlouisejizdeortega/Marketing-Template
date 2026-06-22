@@ -3,41 +3,39 @@
 @section('title', 'Sign in')
 
 @section('content')
-  <h1 class="auth-title">Admin sign in</h1>
-  <p class="auth-sub">Access the site control panel.</p>
-
-  @if ($errors->any())
-    <div class="auth-alert" role="alert">
-      {{ $errors->first() }}
+  <div class="auth-card">
+    <div class="auth-logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-  @endif
 
-  <form method="POST" action="{{ route('login') }}" class="auth-form" novalidate>
-    @csrf
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-sub">Enter your password to open the control panel.</p>
 
-    <label class="field">
-      <span class="field__label">Email address</span>
-      <input type="email" name="email" value="{{ old('email') }}"
-             autocomplete="username" required autofocus
-             class="field__input @error('email') field__input--error @enderror">
-    </label>
+    @if ($errors->any())
+      <div class="auth-alert" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 1 21h22L12 2zm0 6 7 12H5l7-12zm-1 4v3h2v-3h-2zm0 4v2h2v-2h-2z"/></svg>
+        {{ $errors->first() }}
+      </div>
+    @endif
 
-    <label class="field">
-      <span class="field__label">Password</span>
-      <input type="password" name="password" autocomplete="current-password" required
-             class="field__input @error('password') field__input--error @enderror">
-    </label>
+    <form method="POST" action="{{ route('login') }}" class="auth-form" novalidate>
+      @csrf
+      <label class="field">
+        <span class="field__label">Password</span>
+        <span class="pw">
+          <input type="password" name="password" id="password" autocomplete="current-password"
+                 required autofocus
+                 class="field__input @error('password') field__input--error @enderror">
+          <button type="button" class="pw__toggle" aria-label="Show password"
+                  onclick="(function(b){var i=document.getElementById('password');var s=i.type==='password';i.type=s?'text':'password';b.setAttribute('aria-label',s?'Hide password':'Show password');b.firstElementChild.style.opacity=s?'.5':'1';})(this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+          </button>
+        </span>
+      </label>
 
-    <label class="field-check">
-      <input type="checkbox" name="remember" value="1">
-      <span>Keep me signed in</span>
-    </label>
+      <button type="submit" class="btn btn--primary btn--block">Sign in</button>
+    </form>
 
-    <button type="submit" class="btn btn--primary btn--block btn--lg">Sign in</button>
-  </form>
-
-  <p class="form-note" style="margin-top:1.25rem">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm3 8H9V6a3 3 0 0 1 6 0z"/></svg>
-    Private area — authorised staff only.
-  </p>
+    <p class="auth-foot">Private area — authorised staff only.</p>
+  </div>
 @endsection

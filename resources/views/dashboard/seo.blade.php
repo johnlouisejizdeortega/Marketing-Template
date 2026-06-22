@@ -30,7 +30,7 @@
 
     <div class="tool-results" data-results hidden>
       <section class="psi-gauges" data-gauges aria-label="SEO score"></section>
-      <h2 class="psi-h2">Checklist</h2>
+      <h2 class="dash-h2">Checklist</h2>
       <ul class="seo-list" data-checklist></ul>
     </div>
   </div>

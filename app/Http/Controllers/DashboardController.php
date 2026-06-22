@@ -35,4 +35,10 @@ class DashboardController extends Controller
     {
         return view('dashboard.seo');
     }
+
+    /** Live preview of the marketing site (framed). */
+    public function preview(): View
+    {
+        return view('dashboard.preview');
+    }
 }

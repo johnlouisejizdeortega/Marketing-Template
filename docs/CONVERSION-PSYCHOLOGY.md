@@ -2,7 +2,7 @@
 
 This template isn't just "pretty" — every section is deliberately placed to move a
 cold visitor toward one action: **requesting a fixed-price quote**. Below is the
-reasoning, mapped to the principles it uses and where it lives in `index.html`.
+reasoning, mapped to the principles it uses and where it lives in `site.html`.
 
 ## The single conversion goal
 > Get the visitor to submit the quote form (or tap call) — ideally within 60 seconds,

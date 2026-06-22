@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create the single admin account that can reach the dashboard.
-        $this->call(AdminUserSeeder::class);
+        // No database is used. The dashboard authenticates with a single
+        // shared password from env DASHBOARD_PASSWORD (see config/dashboard.php).
     }
 }

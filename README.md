@@ -14,38 +14,38 @@ source and re-skins the template live.
 
 ```
 .
-├── public/                     # Web root — the static marketing site
-│   ├── index.html              #   homepage (all conversion sections)
+├── public/                     # Web root
+│   ├── site.html               #   marketing website (shown only via Preview)
 │   ├── thank-you.html          #   post-submission page
-│   ├── css/styles.css          #   full stylesheet (mobile-first, system fonts)
+│   ├── css/styles.css          #   marketing-site stylesheet
+│   ├── css/dashboard.css       #   modern dashboard + login UI (self-contained)
 │   ├── js/main.js              #   ~2KB: mobile nav + multi-step lead form
+│   ├── js/dashboard.js         #   PageSpeed/SEO tools (client-side PSI API)
 │   ├── tools/design-copier/    #   paste a site's source → copy its design
-│   ├── css/dashboard.css        #   admin dashboard + login styles
-│   ├── js/dashboard.js          #   PageSpeed/SEO tools (client-side PSI API)
 │   ├── robots.txt, sitemap.xml #   SEO basics
 │   └── index.php               #   Laravel front controller
-├── routes/web.php              # Static pages + admin auth/dashboard routes
-├── resources/views/            # Blade: login + dashboard (Generate/PageSpeed/SEO)
-├── app/ bootstrap/ config/ …   # Standard Laravel 13 skeleton
+├── routes/web.php              # Login-first routing + dashboard + gated preview
+├── resources/views/            # Blade: login + dashboard (Generate/PageSpeed/SEO/Preview)
+├── app/Http/Middleware/        # Password-only session gate (no DB)
+├── config/dashboard.php        # The single dashboard password (env)
 ├── docs/
 │   ├── CONVERSION-PSYCHOLOGY.md # Why every section exists (the persuasion plan)
 │   └── DEPLOY-LARAVEL-CLOUD.md  # Step-by-step Laravel Cloud deployment
 ├── composer.json / composer.lock
-└── .env.example                # Defaults (sqlite + DB sessions for the dashboard)
+└── .env.example                # Defaults (no database — cookie sessions)
 ```
 
-The marketing site is fully self-contained in `public/` — the Laravel layer exists
-only to deploy it on Laravel Cloud and to give the directory URLs (`/`, `/thank-you`)
-clean routing. Static assets are served directly by the web server (no PHP), which
-is what preserves the PageSpeed score.
+The app is **login-first**: `/` redirects to the login screen (or the dashboard
+once signed in). The marketing website is private and only viewable through the
+in-dashboard **Preview**. Static assets are served directly by the web server
+(no PHP). **No database is used** — auth is a single password + cookie sessions.
 
 ## Deploy to Laravel Cloud
 
 See **[docs/DEPLOY-LARAVEL-CLOUD.md](docs/DEPLOY-LARAVEL-CLOUD.md)** for the full
-walkthrough. In short: connect the repo, set the env vars from `.env.example`
-(generate `APP_KEY`), and deploy. No Node/Vite build runs (there's no
-`package.json`). The public pages need **no database**; the admin dashboard does
-— attach one, keep `migrate` in the deploy command, and seed the admin user.
+walkthrough. In short: connect the repo, choose **no database**, set the env vars
+from `.env.example` (generate `APP_KEY`, set `DASHBOARD_PASSWORD`), and deploy. No
+migrations, no Node/Vite build.
 
 ## Run it locally
 
@@ -53,42 +53,30 @@ walkthrough. In short: connect the repo, set the env vars from `.env.example`
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan serve            # http://127.0.0.1:8000
+# set a password in .env:  DASHBOARD_PASSWORD=your-strong-password
+php artisan serve            # http://127.0.0.1:8000  → redirects to /login
 ```
 
-Or serve just the static site with any static server (it's all in `public/`):
-
-```bash
-php -S localhost:8000 -t public      # or: python3 -m http.server -d public 8080
-# http://localhost:8000/                      (the website)
-# http://localhost:8000/tools/design-copier/  (the design tool)
-```
+No database, no migrations — it just runs.
 
 ## Admin dashboard
 
-A private, login-gated control panel for the site owner lives at **`/login`** →
-**`/dashboard`**. Auth is real, database-backed Laravel session auth (no Tailwind
-or build step — the login screen reuses the site's own CSS). It has three tools:
+A private, login-gated control panel lives at **`/login`** → **`/dashboard`**.
+Auth is a **single shared password** read from env `DASHBOARD_PASSWORD` (no users
+table, no database — the session lives in an encrypted cookie). The login + UI are
+a modern, minimalist, self-contained design (`public/css/dashboard.css`). Tools:
 
 - **Generate** — the Design Copier, embedded: paste a page's source to extract
   its colours/type and get CSS variables for `public/css/styles.css`.
 - **PageSpeed** — runs Google PageSpeed Insights for any URL and shows the four
   category scores + Core Web Vitals. Calls Google directly from the browser.
 - **SEO** — a Lighthouse-based on-page SEO checklist (pass / warn / fail).
+- **Preview site** — a private, framed preview of `public/site.html` in
+  desktop / tablet / mobile widths.
 
-Enable it locally:
-
-```bash
-touch database/database.sqlite   # .env already sets DB_CONNECTION=sqlite
-php artisan migrate              # users + sessions tables
-php artisan db:seed              # creates the admin from ADMIN_* in .env
-```
-
-The admin account comes from `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` in
-`.env` (defaults `admin@example.com` / `password` for local dev). **Change the
-password in production** and after first login — re-run `db:seed` to update it,
-or change it in `php artisan tinker`. To skip the dashboard entirely, set
-`SESSION_DRIVER=cookie` and don't run the migrations.
+Set the password in `.env` (`DASHBOARD_PASSWORD=your-strong-password`) or, in production,
+in the Laravel Cloud **Environment** settings. Change it any time by editing that
+one variable — no migrations or seeding.
 
 > The PageSpeed/SEO tools optionally take a free
 > [PSI API key](https://developers.google.com/speed/docs/insights/v5/get-started)
@@ -131,9 +119,9 @@ iframe never slows the initial page load or hurts your PageSpeed score.
    ```js
    var GHL_FORM_URL = 'https://api.leadconnectorhq.com/widget/form/YOUR_FORM_ID';
    ```
-   Also update the `<noscript>` fallback link in `public/index.html` to the same URL.
+   Also update the `<noscript>` fallback link in `public/site.html` to the same URL.
 3. (Optional) Prefer to paste HighLevel's full embed snippet? Drop it straight into
-   `<div id="ghlMount">` in `public/index.html` and delete the iframe-injection block
+   `<div id="ghlMount">` in `public/site.html` and delete the iframe-injection block
    in `main.js`.
 
 HighLevel's `form_embed.js` auto-resizes the iframe to the form's height. Submissions,
@@ -145,7 +133,7 @@ The nav, mobile menu and footer include **placeholder links** to other parts of 
 stack — **Customer login**, **Book a call** and **Live chat / help** — using
 `https://your-domain.example.com/...` URLs. Search for `your-domain.example.com` and
 replace them with your real portal / calendar / chat URLs (each is also flagged with a
-`<!-- TODO -->` comment in `public/index.html`).
+`<!-- TODO -->` comment in `public/site.html`).
 
 ## The Design Copier tool
 

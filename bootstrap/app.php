@@ -12,10 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Already-authenticated visitors hitting a guest route (e.g. /login)
-        // are sent to the dashboard. Guests hitting an auth route are sent to
-        // the named "login" route by the default Authenticate middleware.
-        $middleware->redirectUsersTo('/dashboard');
+        // Simple password-only dashboard auth (no database / auth guard).
+        $middleware->alias([
+            'dash.auth' => \App\Http\Middleware\EnsureDashboardAuth::class,
+            'dash.guest' => \App\Http\Middleware\RedirectIfDashboardAuthenticated::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
