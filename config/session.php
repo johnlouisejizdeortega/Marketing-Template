@@ -19,7 +19,8 @@ return [
     */
 
     // Default to the stateless cookie driver: this app has no database.
-    'driver' => env('SESSION_DRIVER', 'cookie'),
+    // `?:` also catches an empty SESSION_DRIVER= value.
+    'driver' => env('SESSION_DRIVER') ?: 'cookie',
 
     /*
     |--------------------------------------------------------------------------

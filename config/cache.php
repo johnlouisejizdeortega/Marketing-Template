@@ -15,7 +15,10 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    // Default to the file store: this app uses no database, and the login
+    // throttle (RateLimiter) relies on the cache. The `?:` also catches an
+    // empty CACHE_STORE= (which env(..., 'file') would not).
+    'default' => env('CACHE_STORE') ?: 'file',
 
     /*
     |--------------------------------------------------------------------------

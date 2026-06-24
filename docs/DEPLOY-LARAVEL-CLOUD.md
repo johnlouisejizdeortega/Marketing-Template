@@ -48,8 +48,13 @@ DASHBOARD_PASSWORD=your-strong-password
 ```
 
 `.env.example` ships these defaults. **Generate the `APP_KEY`** in the dashboard
-(it encrypts the session cookie, so it's required). `SESSION_DRIVER` already
-defaults to `cookie`, but setting it explicitly is good practice.
+(it encrypts the session cookie, so it's required). `SESSION_DRIVER` and
+`CACHE_STORE` both default to no-database drivers (`cookie` / `file`), but
+setting them explicitly is good practice — `CACHE_STORE` must **not** be
+`database` (the login throttle uses the cache, and there's no DB).
+
+> If login returns a 500, it's almost always `CACHE_STORE` pointing at a
+> database. Set `CACHE_STORE=file` and **redeploy** (so `config:cache` re-bakes).
 
 ## 4. Build & deploy commands
 
